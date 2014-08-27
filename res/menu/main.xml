@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <!-- <item
+        android:id="@+id/logo"
+        android:title="@string/zhihu_logo"
+        android:icon="@drawable/ic_action_logo"
+        android:orderInCategory="100"
+        android:showAsAction="always"/> -->
+    
+    <item
+        android:id="@+id/search"
+        android:title="@string/search"
+        android:actionViewClass="android.widget.SearchView"
+        android:orderInCategory="100"
+        android:showAsAction="always"/>
+    <item
+        android:id="@+id/calendar"
+        android:title="@string/calendar"
+        android:icon="@drawable/ic_action_calendar"
+        android:orderInCategory="100"
+        android:showAsAction="always"/>
+    <item
+        android:id="@+id/setting"
+        android:title="@string/setting"
+        android:icon="@drawable/setting"
+        android:orderInCategory="100"
+        android:showAsAction="always">
+        <menu>
+            <group>
+                <item
+                    android:id="@+id/setting01"
+                    android:title="@string/settings01"/>
+                <item
+                    android:id="@+id/setting02"
+                    android:title="@string/settings02"/>
+            </group>
+        </menu>
+    </item>
+
+</menu>

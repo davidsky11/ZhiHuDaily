@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">知乎日报</string>
+    <string name="zhihu_logo">知乎LOGO</string>
+    
+    <string name="pull_to_refresh">下拉刷新</string>
+    <string name="last_updated">最近更新</string>
+    <string name="arrow">箭头</string>
+    
+    <string name="image_desc">图片描述</string>
+    <string name="settings01">设置项1</string>
+    <string name="settings02">设置项2</string>
+    
+    <string name="search">搜索</string>
+    <string name="calendar">日历</string>
+    <string name="setting">设置</string>
+
+</resources>
