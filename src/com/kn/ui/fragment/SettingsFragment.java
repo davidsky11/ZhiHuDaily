@@ -1,4 +1,4 @@
-package com.kn.fragment;
+package com.kn.ui.fragment;
 
 import com.kn.constant.Constants;
 
