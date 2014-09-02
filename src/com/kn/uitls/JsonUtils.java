@@ -15,9 +15,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 
 import android.test.AndroidTestCase;
 import android.util.Log;
@@ -46,9 +43,10 @@ public class JsonUtils extends AndroidTestCase {
 //				
 //			}
 //		}
+//		Log.i(TAG, object.optString("body"));
 		
-		mMap.put("body", object.getString("body"));
-		mMap.put("css", object.getString("css"));
+		mMap.put("body", object.optString("body"));
+		mMap.put("css", object.optString("css"));
 
 		return mMap;
 	}
@@ -58,19 +56,19 @@ public class JsonUtils extends AndroidTestCase {
 		List<ZhiHuSummary> zhs_list = new ArrayList<ZhiHuSummary>();
 
 		JSONObject object = new JSONObject(jsonStr);
-		String date = object.optString("date");
-		Log.i(TAG, "DATE: " + date);
 
 		JSONArray stories = object.optJSONArray("stories");
 		for (int i = 0; i < stories.length(); i++) {
 			ZhiHuSummary zhs = new ZhiHuSummary();
 			JSONObject story = (JSONObject) stories.getJSONObject(i);
 
-			zhs.setId(story.has("id") ? story.getString("id") : null);
+			zhs.setTitle(story.has("title") ? story.getString("title") : null);
 			zhs.setImageUrl(story.has("images") ? (String) story.getJSONArray(
 					"images").get(0) : null);
-			zhs.setTitle(story.has("title") ? story.getString("title") : null);
+			zhs.setId(story.has("id") ? story.getString("id") : null);
 
+			if (i == 0) 
+				System.out.println(zhs.getTitle() + " == " + zhs.getImageUrl() + " == " + zhs.getId());
 			zhs_list.add(zhs);
 		}
 		Log.i(TAG, "获取的知乎新闻数目：" + zhs_list.size());
@@ -107,27 +105,4 @@ public class JsonUtils extends AndroidTestCase {
 		return builder.toString();
 	}
 	
-//	private boolean processMulti(Document doc, Elements viewMoreElements, DailyNews dailyNews) {
-//        dailyNews.setMulti(true);
-//        Elements questionTitleElements = doc.getElementsByClass("question-title");
-//
-//        for (int j = 0; j < viewMoreElements.size(); j++) {
-//            if (questionTitleElements.get(j).text().length() == 0) {
-//                dailyNews.addQuestionTitle(dailyNews.getDailyTitle());
-//            } else {
-//                dailyNews.addQuestionTitle(questionTitleElements.get(j).text());
-//            }
-//
-//            Elements viewQuestionElement = viewMoreElements.get(j).select("a");
-//
-//            // Unless the url is a link to zhihu, do not add it to the result NewsList
-//            if (viewQuestionElement.text().equals("查看知乎讨论")) {
-//                dailyNews.addQuestionUrl(viewQuestionElement.attr("href"));
-//            } else {
-//                return false;
-//            }
-//        }
-//
-//        return true;
-//    }
 }
