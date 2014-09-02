@@ -6,7 +6,7 @@
 	<ImageView
 	    android:id="@+id/news_image"
 	    style="@style/NewsImage"
-	    android:contentDescription="@string/image_desc" />"
+	    android:contentDescription="@string/image_desc" />
 	
     <TextView 
         android:id="@+id/news_title"

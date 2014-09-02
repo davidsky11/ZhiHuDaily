@@ -2,11 +2,7 @@ package com.kn.ui.widget;
 
 import java.util.Date;
 
-import com.kn.R;
-
 import android.content.Context;
-import android.graphics.Color;
-import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,6 +19,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.kn.R;
 
 public class NewsListView extends ListView implements OnScrollListener {
 
@@ -83,9 +81,9 @@ public class NewsListView extends ListView implements OnScrollListener {
 	}
 
 	private void init(Context context) {
-		setCacheColorHint(context.getResources().getColor(R.color.cyan));
+		setCacheColorHint(context.getResources().getColor(R.color.gray));
 		inflater = LayoutInflater.from(context);
-		headView = (LinearLayout) inflater.inflate(R.layout.header, null);
+		headView = (LinearLayout) inflater.inflate(R.layout.header_refresh, null);
 
 		iv_arrow = (ImageView) headView.findViewById(R.id.head_arrowImageView);
 		iv_arrow.setMinimumWidth(70);
@@ -306,7 +304,7 @@ public class NewsListView extends ListView implements OnScrollListener {
 
 	public void onRefreshComplete() {
 		state = DONE;
-		tv_lastUpdated.setText("最近更新:" + new Date().toLocaleString());
+		tv_lastUpdated.setText("最近更新:" + new Date().toString());
 		changeHeaderViewByState();
 	}
 
@@ -337,7 +335,7 @@ public class NewsListView extends ListView implements OnScrollListener {
 	}
 
 	public void setAdapter(BaseAdapter adapter) {
-		tv_lastUpdated.setText("最近更新:" + new Date().toLocaleString());
+		tv_lastUpdated.setText("最近更新:" + new Date().toString());
 		super.setAdapter(adapter);
 	}
 }

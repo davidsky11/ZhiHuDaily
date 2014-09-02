@@ -21,9 +21,5 @@ public class Constants {
 		@SuppressLint("SimpleDateFormat")
 		public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 	}
-	
-	
-	
-	
-	
+
 }

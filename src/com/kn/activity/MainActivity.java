@@ -1,32 +1,47 @@
 package com.kn.activity;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import com.kn.R;
-import com.kn.ui.widget.NewsListView;
-import com.kn.ui.widget.NewsListView.OnRefreshListener;
+import org.json.JSONException;
 
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.DatePicker;
-import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
+import com.kn.R;
+import com.kn.adapter.NewsAdapter;
+import com.kn.entity.ZhiHuSummary;
+import com.kn.ui.widget.NewsListView;
+import com.kn.ui.widget.NewsListView.OnRefreshListener;
+import com.kn.uitls.HttpUtils;
+import com.kn.uitls.JsonUtils;
+
 public class MainActivity extends Activity {
+
+	private static final String TAG = "MainActivity";
+
+	private String jsonStr;
+	List<ZhiHuSummary> zhihu_list = new ArrayList<ZhiHuSummary>();
+	ByteArrayOutputStream out = null;
+	InputStream in = null;
 
 	String[] title = new String[] { "学习了C语言真的可以开发出很多东西吗？",
 			"如果我来你的城市旅行，有哪些没事是不可错过的？", "独立书店一般如何选购售卖的图书？",
@@ -49,22 +64,58 @@ public class MainActivity extends Activity {
 		actionbar.setDisplayShowHomeEnabled(true);
 		actionbar.setHomeButtonEnabled(true);
 
-		List<Map<String, Object>> listItems = new ArrayList<Map<String, Object>>();
-		for (int i = 0; i < title.length; i++) {
-			Map<String, Object> listItem = new HashMap<String, Object>();
-			listItem.put("image", image[i]);
-			listItem.put("title", title[i]);
-			listItem.put("detail", detail[i]);
-			listItems.add(listItem);
-		}
-		SimpleAdapter adpter = new SimpleAdapter(this, listItems,
-				R.layout.news_fragment, new String[] { "image", "title",
-						"detail" }, new int[] { R.id.news_image,
-						R.id.news_title, R.id.news_detail });
+		try {
+//			out = new ByteArrayOutputStream();
 
-		final NewsListView lv_news_list = (NewsListView) this.findViewById(R.id.news_list);
-		lv_news_list.setAdapter(adpter);
-		
+			AssetManager am = MainActivity.this.getAssets();
+			in = am.open("files/latest.json");
+
+			jsonStr = HttpUtils.ChangeInputStream(in);
+
+//			byte[] data = new byte[1024];
+//			int len = 0;
+//			while ((len = in.read(data)) != -1) {
+//				out.write(data, 0, len);
+//			}
+//			in.close();
+//			jsonStr = new String(out.toByteArray());
+			
+			zhihu_list = JsonUtils.Analysis_Lastest(jsonStr);
+			Log.i(TAG, "获取的NEWS长度： " + zhihu_list.size());
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		for (int i = 0; i < zhihu_list.size(); i++) {
+			Log.i(TAG, i + " \t TITLE : " + zhihu_list.get(i).getTitle()
+					+ " \t DESC : " + zhihu_list.get(i).getDesc()
+					+ " \t IMAGE : " + zhihu_list.get(i).getImageUrl());
+		}
+
+		NewsAdapter adapter = new NewsAdapter(this, R.layout.news_item,
+				zhihu_list);
+
+		// List<Map<String, Object>> listItems = new ArrayList<Map<String,
+		// Object>>();
+		// for (int i = 0; i < title.length; i++) {
+		// Map<String, Object> listItem = new HashMap<String, Object>();
+		// listItem.put("image", image[i]);
+		// listItem.put("title", title[i]);
+		// listItem.put("detail", detail[i]);
+		// listItems.add(listItem);
+		// }
+		// SimpleAdapter adpter1 = new SimpleAdapter(this, listItems,
+		// R.layout.news_item,
+		// new String[] { "image", "title", "detail" }, new int[] {
+		// R.id.news_image, R.id.news_title, R.id.news_detail });
+
+		final NewsListView lv_news_list = (NewsListView) this
+				.findViewById(R.id.news_list);
+		lv_news_list.setAdapter(adapter);
+
 		/**
 		 * 添加下拉刷新模块
 		 */
@@ -72,7 +123,8 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onRefresh() {
-				/*new AsyncTask<Void, Void, Void>() {
+
+				new AsyncTask<Void, Void, Void>() {
 					// 下拉刷新过程中需要做的操作
 					protected Void doInBackground(Void... params) {
 //						try {
@@ -82,27 +134,33 @@ public class MainActivity extends Activity {
 //						}
 						return null;
 					}
-					
+
 					// 刷新完成后通知listview进行界面调整
 					protected void onPostExecute(Void result) {
-//						AdapterView.notifyDataSetChanged();
+
 						lv_news_list.onRefreshComplete();
-						Toast.makeText(getApplication(), "刷新完成...", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getApplication(), "刷新完成...",
+								Toast.LENGTH_SHORT).show();
 					}
-				};*/
-				Toast.makeText(getApplication(), "刷新完成...", Toast.LENGTH_SHORT).show();
+				};
 			}
-			
 		});
 
+		/**
+		 * 为新闻列表添加ItemClick监听事件
+		 */
 		lv_news_list.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				Intent intent = new Intent(MainActivity.this, Detail.class);
+				Intent intent = new Intent(MainActivity.this, NewsDetails.class);
 				Bundle data = new Bundle();
+				String news_id = zhihu_list.get(position).getId();
+
 				data.putInt("itemId", position);
+				data.putString("news_id", news_id);
+
 				intent.putExtras(data);
 				startActivity(intent);
 			}
