@@ -1,4 +1,4 @@
-package com.kn.uitls;
+package com.kn.utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,8 +15,6 @@ public class HttpUtils {
 	public HttpUtils() {
 		
 	}
-	
-	
 	
 	/**
 	 * 从指定的URL获取JSON数据
@@ -35,7 +33,7 @@ public class HttpUtils {
 			
 			if (code == 200) {
 				// 服务器已准备好，可以取出流，流直接转换成字符串
-				return ChangeInputStream(connection.getInputStream());
+				return getStrFromStream(connection.getInputStream());
 			}
 
 		} catch (Exception e) {
@@ -49,7 +47,7 @@ public class HttpUtils {
 	 * @param inputStream	输入流
 	 * @return
 	 */
-	public static String ChangeInputStream(InputStream inputStream) {
+	public static String getStrFromStream(InputStream inputStream) {
 		
 		String jsonString = "";
 		
@@ -70,6 +68,31 @@ public class HttpUtils {
 		}
 
 		return jsonString;
+	}
+	
+	/**
+	 * 获取对应URL的输入流
+	 * @param urlStr
+	 * @return
+	 */
+	public static InputStream getInputStream(String urlStr) {
+		URL url;
+		try {
+			url = new URL(urlStr);
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setConnectTimeout(3 * 1000);
+			conn.setRequestMethod("GET");
+			conn.setDoInput(true);
+			conn.connect();
+			if (conn.getResponseCode() == 200) {
+				return conn.getInputStream();
+			}
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	/**

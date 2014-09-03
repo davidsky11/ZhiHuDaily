@@ -1,4 +1,4 @@
-package com.kn.uitls;
+package com.kn.utils;
 
 import java.io.File;
 
@@ -6,7 +6,7 @@ import android.content.Context;
 
 public class FileCache {
 
-	private File cacheDir;
+	private static File cacheDir;
 
 	public FileCache(Context context) {
 		// 找一个用来缓存图片的路径
@@ -14,14 +14,14 @@ public class FileCache {
 				android.os.Environment.MEDIA_MOUNTED))
 			cacheDir = new File(
 					android.os.Environment.getExternalStorageDirectory(),
-					"LazyList");
+					"ZhiHuDaily");
 		else
 			cacheDir = context.getCacheDir();
 		if (!cacheDir.exists())
 			cacheDir.mkdirs();
 	}
 
-	public File getFile(String url) {
+	public static File getFile(String url) {
 
 		String filename = String.valueOf(url.hashCode());
 		File f = new File(cacheDir, filename);
@@ -29,7 +29,7 @@ public class FileCache {
 
 	}
 
-	public void clear() {
+	public static void clear() {
 		File[] files = cacheDir.listFiles();
 		if (files == null)
 			return;

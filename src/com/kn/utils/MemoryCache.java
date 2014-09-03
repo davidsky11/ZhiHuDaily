@@ -1,4 +1,4 @@
-package com.kn.uitls;
+package com.kn.utils;
 
 import java.lang.ref.SoftReference;
 import java.util.Collections;

@@ -1,4 +1,4 @@
-package com.kn.uitls;
+package com.kn.utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -146,7 +146,7 @@ public class PicUtil {
             conn.connect();  
   
             InputStream is = conn.getInputStream();  
-            File cacheFile = FileUtil.getCacheFile(imageUri);  
+            File cacheFile = FileCache.getFile(imageUri);  
             BufferedOutputStream bos = null;  
             bos = new BufferedOutputStream(new FileOutputStream(cacheFile));  
             Log.i(TAG, "write file to " + cacheFile.getCanonicalPath());  

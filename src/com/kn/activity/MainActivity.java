@@ -28,6 +28,7 @@ public class MainActivity extends Activity {
 	public List<ZhiHuSummary> zhihu_list = new ArrayList<ZhiHuSummary>();
 //	private ByteArrayOutputStream out = null;
 //	private InputStream in = null;
+	private static final String jsonUrl = "http://10.0.2.2:8080/KnWebService/zhihu/latest";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,8 +72,9 @@ public class MainActivity extends Activity {
 				.findViewById(R.id.news_list);
 //		lv_news_list.setAdapter(adapter);
 		
-		new DownloadAsyncTask(this, lv_news_list, zhihu_list, Constants.DownType.NEWS_List_DOWN).execute(Constants.Url.ZHIHU_DAILY_LATEST);
-
+//		new DownloadAsyncTask(this, lv_news_list, zhihu_list, Constants.DownType.NEWS_List_DOWN).execute(Constants.Url.ZHIHU_DAILY_LATEST);
+		new DownloadAsyncTask(this, lv_news_list, zhihu_list, Constants.DownType.NEWS_List_DOWN).execute(jsonUrl);
+		
 		/**
 		 * 添加下拉刷新模块
 		 */

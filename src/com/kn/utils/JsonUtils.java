@@ -1,4 +1,4 @@
-package com.kn.uitls;
+package com.kn.utils;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

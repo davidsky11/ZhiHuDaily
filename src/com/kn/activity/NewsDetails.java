@@ -19,7 +19,7 @@ public class NewsDetails extends Activity {
 	
 	private static final String TAG = "NewsDetails";
 	
-//	private static final String jsonUrl = "http://10.0.2.2:8080/KnWebService/zhihu/";
+	private static final String jsonUrl = "http://10.0.2.2:8080/KnWebService/zhihu/";
 //	private static final String jsonUrl = Constants.Url.ZHIHU_DAILY_OFFLINE_NEWS;
 	
 	Map<String, String> mMap = new HashMap<String, String>();
@@ -44,6 +44,9 @@ public class NewsDetails extends Activity {
 		 */
 		contents = (WebView) findViewById(R.id.wv_news);
 		
+		// 加载URL前，设置图片阻塞
+//		webSettings.setBlockNetworkImage(true);
+		
 		// 优先使用缓存
 		webSettings = contents.getSettings();
 		webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);	
@@ -55,8 +58,8 @@ public class NewsDetails extends Activity {
 		webSettings.setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);		// 缩放排版
 		webSettings.setLayoutAlgorithm(LayoutAlgorithm.NORMAL);				// 适应屏幕
 		
-		new DownloadAsyncTask(this, contents, Constants.DownType.NEW_DETAILS_DOWN).execute(Constants.Url.ZHIHU_DAILY_OFFLINE_NEWS + news_id);
-		
+//		new DownloadAsyncTask(this, contents, Constants.DownType.NEW_DETAILS_DOWN).execute(Constants.Url.ZHIHU_DAILY_OFFLINE_NEWS + news_id);
+		new DownloadAsyncTask(this, contents, Constants.DownType.NEW_DETAILS_DOWN).execute(jsonUrl + news_id);
 	}
 
 }

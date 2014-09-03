@@ -29,7 +29,7 @@ import com.kn.constant.Constants;
 import com.kn.entity.ZhiHuSummary;
 import com.kn.ui.widget.NewsListView;
 import com.kn.ui.widget.NewsListView.OnRefreshListener;
-import com.kn.uitls.JsonUtils;
+import com.kn.utils.JsonUtils;
 
 public class DownloadAsyncTask extends AsyncTask<String, Void, String> {
 	
@@ -41,7 +41,7 @@ public class DownloadAsyncTask extends AsyncTask<String, Void, String> {
 	private int downType;		// 下载类型（新闻列表、新闻内容）
 	private Context context;
 	private WebView webView;
-	private NewsListView listView;
+	private NewsListView newsListView;
 	private List<ZhiHuSummary> zhihu_list;
 
 	public DownloadAsyncTask(Context context, WebView webView, int downType) {
@@ -50,11 +50,11 @@ public class DownloadAsyncTask extends AsyncTask<String, Void, String> {
 		this.webView = webView;
 	}
 	
-	public DownloadAsyncTask(Context context, NewsListView listView, List<ZhiHuSummary> zhihu_list, int downType) {
+	public DownloadAsyncTask(Context context, NewsListView newsListView, List<ZhiHuSummary> zhihu_list, int downType) {
 		this.downType = downType;
 		this.zhihu_list = zhihu_list;
 		this.context = context;
-		this.listView = listView;
+		this.newsListView = newsListView;
 	}
 	
 	@Override
@@ -80,14 +80,14 @@ public class DownloadAsyncTask extends AsyncTask<String, Void, String> {
 					System.out.println(count++  + " : " + zh.getId());
 				}
 				
-				NewsAdapter adapter = new NewsAdapter(this.context, R.layout.news_item,
-						zhihu_list);
-				this.listView.setAdapter(adapter);
+				NewsAdapter adapter = new NewsAdapter(this.context, newsListView,
+						zhihu_list, R.layout.news_item);
+				this.newsListView.setAdapter(adapter);
 				
 				/**
 				 * 为news_list_view添加下拉刷新事件
 				 */
-				listView.setonRefreshListener(new OnRefreshListener() {
+				newsListView.setonRefreshListener(new OnRefreshListener() {
 
 					@Override
 					public void onRefresh() {
@@ -106,7 +106,7 @@ public class DownloadAsyncTask extends AsyncTask<String, Void, String> {
 							// 刷新完成后通知listview进行界面调整
 							protected void onPostExecute(Void result) {
 
-								listView.onRefreshComplete();
+								newsListView.onRefreshComplete();
 								Toast.makeText(context, "刷新完成...",
 										Toast.LENGTH_SHORT).show();
 							}
@@ -117,7 +117,7 @@ public class DownloadAsyncTask extends AsyncTask<String, Void, String> {
 				/**
 				 * 为news_list_view添加点击事件
 				 */
-				listView.setOnItemClickListener(new OnItemClickListener() {
+				newsListView.setOnItemClickListener(new OnItemClickListener() {
 
 					@Override
 					public void onItemClick(AdapterView<?> parent, View view,

@@ -11,19 +11,20 @@ import java.util.List;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import com.kn.R;
 import com.kn.entity.ZhiHuSummary;
-import com.kn.uitls.ImageLoader;
+import com.kn.ui.widget.NewsListView;
+import com.kn.utils.MyImageLoader;
+import com.kn.utils.MyImageLoader.ImageCallback;
 
 /**
  * 知乎新闻数据（图片，文本）
@@ -38,28 +39,31 @@ public class NewsAdapter extends BaseAdapter {
 
 	private int layoutId;
 	private Context context;
-	private ImageLoader imageLoader;
+	private NewsListView newsListView;
+	private MyImageLoader myImageLoader;
 
 	private List<ZhiHuSummary> zhihu_list = new ArrayList<ZhiHuSummary>();
 
-	public NewsAdapter() {
-		
-	}
-	
-	public NewsAdapter(Context context, List<ZhiHuSummary> zhihu_list) {
+	public NewsAdapter(Context context) {
 		this.context = context;
-		this.zhihu_list = zhihu_list;
-		this.imageLoader = new ImageLoader();
-//		this.imageLoader = new ImageLoader(context);
-		Log.i(TAG, getClass().getName());
+		myImageLoader = new MyImageLoader();
 	}
 
-	public NewsAdapter(Context context, int layoutId,
+	public NewsAdapter(Context context, NewsListView newsListView,
 			List<ZhiHuSummary> zhihu_list) {
+		this.context = context;
+		this.zhihu_list = zhihu_list;
+		this.newsListView = newsListView;
+		myImageLoader = new MyImageLoader();
+	}
+
+	public NewsAdapter(Context context, NewsListView newsListView,
+			List<ZhiHuSummary> zhihu_list, int layoutId) {
 		this.context = context;
 		this.layoutId = layoutId;
 		this.zhihu_list = zhihu_list;
-		this.imageLoader = new ImageLoader(context);
+		this.newsListView = newsListView;
+		myImageLoader = new MyImageLoader();
 	}
 
 	@Override
@@ -80,107 +84,65 @@ public class NewsAdapter extends BaseAdapter {
 	@Override
 	public View getView(int position, View view, ViewGroup parent) {
 
-		if (view == null)
-			view = LayoutInflater.from(context).inflate(layoutId, null);
+		View rowView = view;
 
-		((TextView) view.findViewById(R.id.news_title)).setText(zhihu_list.get(
-				position).getTitle());
-		((TextView) view.findViewById(R.id.news_detail)).setText(zhihu_list
+		if (rowView == null) {
+			rowView = LayoutInflater.from(context).inflate(layoutId, null);
+			rowView.setTag("rowView");
+		}
+
+		((TextView) rowView.findViewById(R.id.news_title)).setText(zhihu_list
+				.get(position).getTitle());
+		((TextView) rowView.findViewById(R.id.news_detail)).setText(zhihu_list
 				.get(position).getDesc());
 
-		ImageView imageView = (ImageView) view.findViewById(R.id.news_image);
-		
-		String imgUrl = zhihu_list.get(position).getImageUrl();
-		Log.i(TAG, imgUrl);
-		
-		imageLoader.DisplayImage(imgUrl, imageView);
-//		new PicDownloadAsyncTask((ImageView) view.findViewById(R.id.news_image))
-//				.execute(zhihu_list.get(position).getImageUrl());
+		ImageView imageView = (ImageView) rowView.findViewById(R.id.news_image);
+		String imageUrl = zhihu_list.get(position).getImageUrl();
+		imageView.setTag(imageUrl);
+		Log.i(TAG, imageUrl);
 
-		return view;
+		Drawable cachedImage = myImageLoader.loadDrawable(imageUrl,
+				new ImageCallback() {
+
+					@Override
+					public void imageLoaded(Drawable imageDrawable,
+							String imageUrl) {
+						ImageView imageViewByTag = (ImageView) newsListView
+								.findViewWithTag(imageUrl);
+						if (imageViewByTag != null) {
+							imageViewByTag.setImageDrawable(imageDrawable);
+						}
+					}
+
+				});
+		if (cachedImage == null) {
+			imageView.setImageResource(R.drawable.no_image);
+		} else {
+			imageView.setImageDrawable(cachedImage);
+		}
+
+		return rowView;
 	}
 
-	private class PicDownloadAsyncTask extends AsyncTask<String, Void, Bitmap> {
+	/**
+	 * 从URL获取位图
+	 * @param imageUrl
+	 * @return
+	 */
+	public Bitmap getBitmap(String imageUrl) {
+		Bitmap mBitmap = null;
+		try {
+			URL url = new URL(imageUrl);
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			InputStream is = conn.getInputStream();
+			mBitmap = BitmapFactory.decodeStream(is);
 
-		private ImageView imageView;
-
-		public PicDownloadAsyncTask(ImageView imageView) {
-			this.imageView = imageView;
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 
-		@Override
-		protected Bitmap doInBackground(String... params) {
-			String urlStr = params[0]; // 获取下载链接
-			Bitmap bitMap = null;
-
-			try {
-
-				URL url = new URL(urlStr);
-				HttpURLConnection connection = (HttpURLConnection) url
-						.openConnection();
-				connection.setConnectTimeout(3 * 1000);
-				connection.setRequestMethod("GET");// 请求方法
-				connection.setDoInput(true);// 输入流
-				int code = connection.getResponseCode();
-				
-				if (code == 200) {
-					// 服务器已准备好，可以取出流，流直接转换成字符串
-					return BitmapFactory.decodeStream(connection.getInputStream());
-				}
-				
-//				URL imgUrl = new URL(urlStr);
-//				bitMap = BitmapFactory.decodeStream(imgUrl.openStream());
-
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			return bitMap;
-		}
-
-		@Override
-		protected void onCancelled() {
-			super.onCancelled();
-		}
-
-		@Override
-		protected void onCancelled(Bitmap result) {
-			super.onCancelled(result);
-
-			((ImageView) imageView.findViewById(R.id.news_image))
-					.setImageBitmap(result);
-		}
-
-		@Override
-		protected void onPostExecute(Bitmap result) {
-			super.onPostExecute(result);
-		}
-
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-		}
-
-		@Override
-		protected void onProgressUpdate(Void... values) {
-			super.onProgressUpdate(values);
-		}
-
+		return mBitmap;
 	}
-	
-	public Bitmap getBitmap(String imageUrl){  
-        Bitmap mBitmap = null;  
-        try {  
-            URL url = new URL(imageUrl);  
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();  
-            InputStream is = conn.getInputStream();  
-            mBitmap = BitmapFactory.decodeStream(is);  
-              
-        } catch (MalformedURLException e) {  
-            e.printStackTrace();  
-        } catch (IOException e) {  
-            e.printStackTrace();  
-        }  
-          
-        return mBitmap;  
-    }  
 }
